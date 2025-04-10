@@ -1,0 +1,470 @@
+#===========================# 
+#  Statistique DESCRIPTIVE  #
+#===========================#
+
+rm(list=ls())
+
+library(questionr)
+library(openxlsx)
+library(readxl)
+library(ggplot2)
+library(dplyr)
+
+###### ANALYSE UNIVARIEE
+
+### Charger base
+
+hdv <- read_xlsx("C:/Users/pc/Desktop/Formation AS/AS2/SEMESTRE 4/Logiciel R/TP_descriptive/Base_Tp_Module2/hdv.xlsx")
+str(hdv)
+describe(hdv)
+glimpse(hdv)
+
+### Mettre format factor
+
+hdv$sexe<-as.factor(hdv$sexe)
+hdv$nivetud<-as.factor(hdv$nivetud)
+hdv$occup<-as.factor(hdv$occup)
+hdv$qualif<-as.factor(hdv$qualif)
+hdv$clso<-as.factor(hdv$clso)
+hdv$relig<-as.factor(hdv$relig)
+hdv$trav.imp<-as.factor(hdv$trav.imp)
+hdv$trav.satisf<-as.factor(hdv$trav.satisf)
+hdv$hard.rock<-as.factor(hdv$hard.rock)
+hdv$lecture.bd<-as.factor(hdv$lecture.bd)
+hdv$peche.chasse<-as.factor(hdv$peche.chasse)
+hdv$cuisine<-as.factor(hdv$cuisine)
+hdv$bricol<-as.factor(hdv$bricol)
+hdv$cinema<-as.factor(hdv$cinema)
+hdv$sport<-as.factor(hdv$sport)
+
+### Stat des
+
+mean(hdv$heures.tv)
+
+mean(hdv$heures.tv, na.rm = TRUE)
+
+sd(hdv$heures.tv, na.rm = TRUE)
+
+min(hdv$heures.tv, na.rm = TRUE)
+
+max(hdv$heures.tv, na.rm = TRUE)
+
+range(hdv$heures.tv, na.rm = TRUE) # min et max
+
+diff(range(hdv$heures.tv, na.rm = TRUE)) #Étendu 
+
+quantile(hdv$heures.tv, na.rm = TRUE, probs = c(0.5,0.75))
+
+summary(hdv$heures.tv)
+
+### graphique
+
+hist(hdv$heures.tv,
+     main="",
+     xlab = "Heures",
+     ylab = "Effectif",
+     col="orange") + theme_minimal()
+
+plot(density(hdv$heures.tv, na.rm = TRUE),
+     main = "Heures consacrées à la télévision")
+
+plot(ecdf(hdv$heures.tv),main = "")
+
+boxplot(hdv$heures.tv, 
+        main = "",
+        ylab = "Heures")
+
+boxplot(hdv$heures.tv, col = grey(0.8), main = "Nombre d'heures passées devant la télé par jour",
+        ylab = "Heures")
+
+abline(h = median(hdv$heures.tv, na.rm = TRUE), col = "navy", lty = 2)
+text(1.35, median(hdv$heures.tv, na.rm = TRUE) + 0.15, "Médiane",
+     col = "navy")
+Q1 <- quantile(hdv$heures.tv, probs = 0.25, na.rm = TRUE)
+abline(h = Q1, col = "darkred")
+text(1.35, Q1 + 0.15, "Q1 : premier quartile", col = "darkred",
+     lty = 2)
+Q3 <- quantile(hdv$heures.tv, probs = 0.75, na.rm = TRUE)
+abline(h = Q3, col = "darkred")
+text(1.35, Q3 + 0.15, "Q3 : troisième quartile", col = "darkred",
+     lty = 2)
+arrows(x0 = 0.7, y0 = quantile(hdv$heures.tv, probs = 0.75, na.rm = TRUE),
+       x1 = 0.7, y1 = quantile(hdv$heures.tv, probs = 0.25, na.rm = TRUE),
+       length = 0.1, code = 3)
+text(0.7, Q1 + (Q3 - Q1)/2 + 0.15, "h", pos = 2)
+mtext("L'écart inter-quartile h contient 50 % des individus",
+      side = 1)
+abline(h = Q1 - 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q1 - 1.5 * (Q3 - Q1) + 0.15, "Q1 -1.5 h", col = "darkgreen",
+     lty = 2)
+abline(h = Q3 + 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q3 + 1.5 * (Q3 - Q1) + 0.15, "Q3 +1.5 h", col = "darkgreen",
+     lty = 2)
+
+### Variable qualitative ou catégorielle
+
+table(hdv$sexe)
+table(hdv$occup)
+
+sort(table(hdv$occup))
+sort(table(hdv$occup), decreasing = TRUE)
+
+prop.table(table(hdv$qualif))
+
+# useNA="no" (valeur par défaut), les valeurs manquantes ne sont jamais incluses dans le tri à plat ;
+# useNA="ifany" , une colonne NA est ajoutée si des valeurs manquantes sont présentes dans les données ;
+# useNA="always" , une colonne NA est toujours ajoutée, même s’il n’y a pas de valeurs
+
+table(hdv$trav.satisf, useNA = "ifany")
+table(hdv$trav.satisf, useNA = "always")
+
+summary(hdv$trav.satisf)
+
+freq(hdv$qualif)
+
+freq(hdv$qualif, cum = TRUE, total = TRUE, sort = "inc", digits = 2,
+     exclude = NA)
+
+freq(hdv$sexe, levels = "labels") #LEVEL POUR AFFICHER LES LABELS
+
+freq(hdv$sexe, cum = TRUE, total = TRUE, sort = "inc", digits = 2,
+     exclude = NA)
+
+barplot(sort(table(hdv$sexe),TRUE),col=1:2)
+
+pie(table(hdv$sexe),col=1:2)
+
+plot(table(hdv$freres.soeurs),
+     main = paste("Nombre de frères, de soeurs",
+                  "demi-frères et demi-soeurs", sep="\n"),
+     ylab = "Effectif") 
+dotchart(as.matrix(table(hdv$clso))[, 1], main = "Sentiment d'appartenance
+à une classe sociale",
+         pch = 19)
+
+dotchart(as.matrix(sort(table(hdv$qualif)))[, 1], main = "Niveau de qualification")
+
+#### Analyse bivariée
+
+## Deux variables quanti
+
+cor(hdv$age, hdv$heures.tv, use = "complete.obs")
+round(cor(hdv$age, hdv$heures.tv, use = "complete.obs"),2)
+
+cov(hdv$age, hdv$heures.tv,use = "complete.obs")
+
+
+reg <- lm(heures.tv ~ age, data = hdv)
+summary(reg)
+
+plot(hdv$age, hdv$heures.tv, ylab = "Part des cadres", xlab = "Part d
+es diplômés du supérieur")
+abline(reg, col = "red")
+
+### Deux quali
+
+hdv$qualif2 <- as.character(hdv$qualif)
+hdv$qualif2[hdv$qualif %in% c("Ouvrier specialise", "Ouvrier qualifie")] <- "Ouvrier"
+hdv$qualif2[hdv$qualif %in% c("Profession intermediaire", "Technicien")] <- "Intermediaire"
+
+table(hdv$sport,hdv$qualif2)
+
+library(stats)
+xtabs(~sport + qualif2 , hdv)
+
+ltabs(~sport + qualif2 , hdv)
+
+lprop(table(hdv$sport,hdv$qualif2),digits = 2)
+
+cprop(table(hdv$sport,hdv$qualif2),digits = 2)
+cprop(table(hdv$sport,hdv$qualif2),digits = 2, percent = TRUE)
+
+cprop(table(hdv$sexe,hdv$qualif2),digits = 2, percent = F)
+
+barplot(cprop(table(hdv$sport,hdv$qualif2), total = T), main = "sport et CSP", col=c("orange","skyblue"))
+
+barplot(cprop(table(hdv$sport,hdv$qualif2), total = F), main = "sport et CSP", col=c("orange","skyblue"))
+
+summary(table(hdv$sport,hdv$qualif2))
+
+summary(table(hdv$sport,hdv$qualif2))$statistic
+chisq.test(table(hdv$sport,hdv$qualif2))$statistic
+
+### Quali et Quanti
+
+tapply(hdv$heures.tv,hdv$sexe,mean,na.rm=T)
+
+round(tapply(hdv$heures.tv,hdv$sexe,mean,na.rm=T),2)
+round(tapply(hdv$heures.tv,hdv$sexe,sd,na.rm=T),2)
+
+hdv %>% group_by(sexe) %>% summarise(mean(heures.tv,na.rm=T)) %>% ungroup()
+
+tableau<-hdv %>% group_by(sexe) %>% 
+  summarise(n(),round(mean(heures.tv,na.rm=T),2),round(sd(heures.tv,na.rm=T),2)) %>% 
+  ungroup()
+
+tableau<-as.data.frame(tableau)
+
+colnames(tableau)<-c("Sexe", "Effectif", "Moyenne", "Ecart_type") 
+
+tableau
+
+tableau<-hdv %>% group_by(sexe) %>% 
+  summarise(Effectif=n(),
+            Moyenne=round(mean(heures.tv,na.rm=T),2),
+            Ecart_type=round(sd(heures.tv,na.rm=T),2)) %>% 
+  ungroup()
+
+tableau<-as.data.frame(tableau)
+
+tableau_total<-hdv %>% 
+  summarise(Effectif=n(),
+            Moyenne=round(mean(heures.tv,na.rm=T),2),
+            Ecart_type=round(sd(heures.tv,na.rm=T),2)) 
+
+library(openxlsx)
+write.xlsx(tableau,"E:/Cours_ENSEA/Introduction_R/TP/stat_des1.xlsx")
+
+tableau1<-hdv %>% group_by(sexe,sport) %>% 
+  summarise(Effectif=n(),
+            Moyenne=round(mean(heures.tv,na.rm=T),2),
+            Ecart_type=round(sd(heures.tv,na.rm=T),2)) %>% 
+  ungroup()
+
+tableau1<-as.data.frame(tableau1)
+
+write.xlsx(tableau1,"C:/Users/pc/Desktop/Formation AS/AS2/SEMESTRE 4/Logiciel R/TP_descriptive/Base_Tp_Module2/stat_des2.xlsx")
+
+barplot(tapply(hdv$heures.tv,hdv$sexe,mean,na.rm=T))
+
+barplot(tapply(hdv$heures.tv,hdv$sexe,mean,na.rm=T),
+        main="Heure moyenne devant la télé selon le sexe",
+        xlab="Sexe",
+        ylab="heures")
+
+boxplot(hdv$heures.tv~hdv$sexe, col = grey(0.8),
+        main = paste("Nombre d'heures", "devant la télé", sep="\n"),
+        ylab = "Heures",
+        xlab = "Sexe")
+
+#===========================# 
+#         ggplot2           #
+#===========================#
+
+rm(list=ls())
+
+### Charger package
+
+library(dplyr)
+library(ggplot2)
+library(haven)
+
+#=========== Application 1 ============
+
+### charger Base
+
+films<-read_dta("C:/Users/pc/Desktop/Formation AS/AS2/SEMESTRE 4/Logiciel R/TP_descriptive/Base_Tp_Module2/films.dta")
+
+films_reduit <-films %>%
+  filter(country %in% c("United States of America", "New Zealand", "United Kingdom", "Spain"))
+
+### Analyse Univariée
+
+ggplot(data = films_reduit, aes(x = runtime)) + geom_histogram()
+
+ggplot(data = films_reduit,
+       aes(x = runtime)) +
+  geom_histogram(fill = "dodger blue")
+
+ggplot(data = films_reduit, aes(x = runtime, y = ..density..)) +
+  geom_histogram(colour = "white") +
+  geom_line(stat="density", col = "red", size = 1.2)
+
+ggplot(data = films_reduit, aes(x = runtime, y = ..density..)) +
+  geom_histogram(colour = "white") +
+  geom_density(col = "red")
+
+### Analyse bivariée
+
+## Nuage de point
+
+ggplot(data = films,
+       aes(x = estimated_budget, y = gross_revenue)) + geom_point()
+
+ggplot(data = films, aes(x = estimated_budget, y = gross_revenue)) +
+  geom_point(colour = "dodger blue", alpha = .8)
+
+ggplot(data = films_reduit, aes(x = estimated_budget, y = gross_revenue)) +
+  geom_point(alpha = .8, aes(colour = estimated_budget))
+
+ggplot(data = films_reduit, aes(x = estimated_budget, y = gross_revenue)) +
+  geom_point(alpha = .8, aes(colour = country))
+
+ggplot(data = films_reduit,
+       aes(x = estimated_budget, y = gross_revenue, col = country)) +
+  geom_line()
+
+### 
+
+ggplot(data = films_reduit,
+       aes(x = country, y = runtime, fill = country)) +
+  geom_boxplot()
+
+ggplot(data = films_reduit, aes(x = estimated_budget,
+                                y = gross_revenue,
+                                colour = country,
+                                size = runtime)) +
+  geom_point()
+
+ggplot(data = films_reduit,
+       aes(estimated_budget/1000000,
+           gross_revenue/1000000,
+           colour = country,
+           size = runtime)) +
+  geom_point() +
+  facet_wrap( ~ country, scales = "fixed")
+
+ggplot(data = films, aes(x = estimated_budget, y = gross_revenue)) +
+  geom_point() +
+  stat_smooth(method = "lm", level = 0.9, se=F, col="red")
+
+ggplot(data = films, aes(x = estimated_budget, y = gross_revenue)) +
+  geom_point() +
+  stat_smooth(method = "lm", level = 0.9)
+
+#============== Application 2 ===============
+
+rp <- read_xlsx("C:/Users/pc/Desktop/Formation AS/AS2/SEMESTRE 4/Logiciel R/TP_descriptive/Base_Tp_Module2/rp2018.xlsx")
+
+rp <- rp %>% 
+  filter(departement %in% c("Oise", "Rhône", "Hauts-de-Seine", "Lozère", "Bouches-du-Rhône"))
+
+ggplot(rp,aes(x = cadres)) +
+  geom_histogram()
+
+ggplot(data = rp) +
+  geom_histogram(aes(x = cadres)) +
+  facet_wrap(vars(departement))
+
+ggplot(data = rp) +
+  geom_histogram(aes(x = cadres)) +
+  facet_grid(rows = vars(departement))
+
+ggplot(rp) +
+  geom_bar(aes(x = departement))
+
+ggplot(rp) +
+  geom_bar(aes(x = departement)) +
+  coord_flip()
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement),
+    fill = "darkblue", width = .5
+  )
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement, fill = pop_cl),
+    position = "dodge"
+  )
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement, fill = pop_cl),
+    position = "fill"
+  )
+
+ggplot(rp) +
+  geom_point(aes(x = dipl_sup, y = cadres))
+
+ggplot(rp,aes(x = dipl_sup, y = cadres)) +
+  geom_point(col="blue")
+
+ggplot(rp) +
+  geom_point(
+    aes(x = dipl_sup, y = cadres, size = pop_tot),
+    color = "royalblue"
+  )
+
+ggplot(rp) +
+  geom_boxplot(
+    aes(x = departement, y = maison))
+
+ggplot(rp) +
+  geom_boxplot(
+    aes(x = departement, y = maison),
+    fill = "wheat", color = "tomato4"
+  )
+
+ggplot(rp) +
+  geom_violin(
+    aes(x = departement, y = maison),
+    bw = 2
+  )
+
+ggplot(data = rp) +
+  geom_histogram(aes(x = cadres)) +
+  facet_wrap(vars(departement))
+
+ggplot(data = rp) +
+  geom_histogram(aes(x = cadres)) +
+  facet_grid(rows = vars(departement))
+
+ggplot(rp) +
+  geom_bar(aes(x = departement))
+
+ggplot(rp) +
+  geom_bar(aes(x = departement)) +
+  coord_flip()
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement),
+    fill = "darkblue", width = .5
+  )
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement, fill = pop_cl),
+    position = "dodge"
+  )
+
+ggplot(rp) +
+  geom_bar(
+    aes(x = departement, fill = pop_cl),
+    position = "fill"
+  )
+
+#==================== Application 3
+
+rm(list=ls())
+
+job_indicator <- read_xlsx("C:/Users/pc/Desktop/Formation AS/AS2/SEMESTRE 4/Logiciel R/TP_descriptive/Base_Tp_Module2/job_indicator.xlsx")
+
+job_indicator$date=as.Date(job_indicator$date)
+
+ggplot(job_indicator) +
+  geom_line(aes(x = date, y = unemploy))
+
+
+library(lubridate)
+
+job_indicator <- job_indicator %>%
+  mutate(Mois = factor(substr(as.character(date), 6, 7)))
+
+
+table(job_indicator$Mois)
+
+names(job_indicator)
+
+
+ggplot(job_indicator) +
+  geom_line(aes(x = date, y = unemploy)) +
+  facet_wrap(vars(Mois))
+
+ggplot(job_indicator) +
+  geom_line(aes(x = date, y = unemploy)) +
+  facet_grid(vars(Mois))
+
+
